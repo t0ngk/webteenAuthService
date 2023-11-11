@@ -57,7 +57,7 @@ public class AuthController {
             UserResponse userResponse = ((UserResponse) response);
             if (userResponse == null) {
                 Map<String, String> error = new HashMap<>();
-                error.put("message", "User not found");
+                error.put("message", "User not found or token expired");
                 return ResponseEntity.badRequest().body(error);
             }
             return ResponseEntity.ok(userResponse);
