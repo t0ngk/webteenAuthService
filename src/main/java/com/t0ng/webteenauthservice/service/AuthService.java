@@ -43,7 +43,7 @@ public class AuthService {
         }
         String accessToken = new JwtUtil(secretKey, "8400").generateAccessToken(user.get_id());
         String refreshToken = new JwtUtil(secretKey, "8400").generateRefreshToken(user.get_id());
-        return new AuthResponse(false, "Refresh success", accessToken, refreshToken);
+        return new AuthResponse(false, "Login success", accessToken, refreshToken);
     }
 
     @RabbitListener(queues = "profileQueue")
@@ -56,19 +56,15 @@ public class AuthService {
                 return null;
             }
             UserResponse userResponse = new UserResponse();
+            userResponse.setEmail(user.getEmail());
             userResponse.setUsername(user.getUsername());
+            userResponse.setRole(user.getRole());
+            userResponse.setBirthDate(user.getBirthDate());
+            userResponse.setCreatedDate(user.getCreatedDate());
             return userResponse;
         } catch (ExpiredJwtException e) {
             return null;
         }
-//        Claims profile = jwtUtil.parseToken(token);
-//        User user = userService.findById(profile.getSubject());
-//        if (user == null) {
-//            return null;
-//        }
-//        UserResponse userResponse = new UserResponse();
-//        userResponse.setUsername(user.getUsername());
-//        return userResponse;
     }
 
     @RabbitListener(queues = "refreshQueue")
@@ -81,7 +77,7 @@ public class AuthService {
             }
             String accessToken = new JwtUtil(secretKey, "8400").generateAccessToken(user.get_id());
             String refreshToken = new JwtUtil(secretKey, "8400").generateRefreshToken(user.get_id());
-            return new AuthResponse(false, "Login success", accessToken, refreshToken);
+            return new AuthResponse(false, "Refresh success", accessToken, refreshToken);
         } catch (ExpiredJwtException e) {
             return new AuthResponse(true, "Token is expired", null, null);
         }
