@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Map;
 
 @Component
 public class JwtUtil {
@@ -34,21 +35,20 @@ public class JwtUtil {
         return getExpirationDateFromToken(token).before(new Date());
     }
 
-    public String generateAccessToken(String _id) {
+    public String generateToken(Map<String, Object> claims, String subject, String type) {
+        long expirationTimeLong = Long.parseLong(expirationTime) * 1000;
+        if (type.equals("access")) {
+            expirationTimeLong = Long.parseLong(expirationTime);
+        } else if (type.equals("refresh")) {
+            expirationTimeLong = Long.parseLong(expirationTime) * 5;
+        }
         return Jwts.builder()
-                .setSubject(_id)
+                .setClaims(claims)
+                .setSubject(subject)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(expirationTime) * 1000))
                 .signWith(key)
                 .compact();
-    }
 
-    public String generateRefreshToken(String _id) {
-        return Jwts.builder()
-                .setSubject(_id)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + Long.parseLong(expirationTime) * 1000 * 5))
-                .signWith(key)
-                .compact();
     }
 }
